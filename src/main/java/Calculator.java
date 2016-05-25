@@ -1,83 +1,102 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Created by alfeu on 18/05/16.
  */
 public class Calculator {
-    public int calculate(String expression){
-        int result = 0;
-        ExpressionNumber number1 = new ExpressionNumber();
-        ExpressionNumber number2 = new ExpressionNumber();
-        char operation = ' ';
+	public int calculate(String expression){
+		int result = 0;
+		
+		expression = expression.replaceAll(" ", "");
+		
+		//check if there is a parenthesis expression, then resolve, transform expression and check again
+		Pattern innerParenthesisRegex = Pattern.compile("\\((?=[^\\(]*$)([^\\)]+)\\)");
+		Matcher matcher = innerParenthesisRegex.matcher(expression);
+		boolean hasParenthesis = false;
+		if(matcher.find()){
+			hasParenthesis = true;
+			do{
+				//eval matched expression
+				String simpleExpression = matcher.group(1);
+				result = evaluateExpressionWithoutParenthesis(simpleExpression);
+				
+				//transform the actual expression into a smaller one
+				expression = matcher.replaceAll(Integer.toString(result));
+				matcher = innerParenthesisRegex.matcher(expression);
+				hasParenthesis = matcher.find();
+				//do this until there is no parenthesis left
+			}while(hasParenthesis);
+		}
+		
+		//after removing all parenthesis, resolve expression		
+		result = evaluateExpressionWithoutParenthesis(expression);
 
-        for(char c : expression.toCharArray()){
-            if(Character.isDigit(c)){
-                int number = Character.getNumericValue(c);
-                //set number1. if already set, set number 2
-                //if number2 is set, resolve the expression and set result to number1
-                if (!number1.isSet()){
-                    number1.setSet(true);
-                    number1.setValue(number);
-                }else if(!number2.isSet()) {
-                    number2.setSet(true);
-                    number2.setValue(number);
+		return result;
+	}
 
-                    //calculate
-                    switch(operation){
-                        case '+':
-                            result += number1.getValue() + number2.getValue();
-                            break;
-                        case '-':
-                            result += number1.getValue() - number2.getValue();
-                            break;
-                        case '*':
-                            result += number1.getValue() * number2.getValue();
-                            break;
-                    }
-                    //reset values
-                    number2.reset();
-                    number1.setValue(result);
+	private int evaluateExpressionWithoutParenthesis(String expression){
+		int result = 0;
+		//resolve first the multiplications
+		Pattern multiplicationOperationRegex = Pattern.compile("(\\d+)\\*(\\d+)");
+		Matcher matcher = multiplicationOperationRegex.matcher(expression);
+		boolean hasMultiplicationOperation = false;
+		if(matcher.find()){
+			hasMultiplicationOperation = true;
+			do{
+				//eval matched expression
+				int number1 = Integer.parseInt(matcher.group(1));
+				int number2 = Integer.parseInt(matcher.group(2));
+				result = evaluateExpression(number1, number2, '*');
+				
+				//transform the actual expression into a smaller one
+				expression = matcher.replaceFirst(Integer.toString(result));
+				matcher = multiplicationOperationRegex.matcher(expression);
+				hasMultiplicationOperation = matcher.find();
+				
+				//do this until there is no parenthesis left				
+			}while(hasMultiplicationOperation);
+		}
+		
+		//resolve the remaining operations
+		Pattern operationRegex = Pattern.compile("(\\d+)([\\+\\-])(\\d+)");
+		matcher = operationRegex.matcher(expression);
+		boolean hasOperation = false;
+		if(matcher.find()){
+			hasOperation = true;
+			do{
+				//eval matched expression
+				int number1 = Integer.parseInt(matcher.group(1));
+				int number2 = Integer.parseInt(matcher.group(3));
+				result = evaluateExpression(number1, number2, matcher.group(2).toCharArray()[0]);
+				
+				//transform the actual expression into a smaller one
+				expression = matcher.replaceFirst(Integer.toString(result));
+				matcher = operationRegex.matcher(expression);
+				hasOperation = matcher.find();
+				//to this until there is no parenthesis left
+				
+			}while(hasOperation);
+		}
 
-                }
-
-            }else{
-                switch(c){
-                    case '+':
-                    case '-':
-                    case '*':
-                        operation = c;
-                        break;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    class ExpressionNumber{
-
-        boolean isSet;
-        int value;
-
-        public void reset(){
-            this.isSet = false;
-            this.value = 0;
-        }
-
-        public boolean isSet() {
-            return isSet;
-        }
-
-        public void setSet(boolean set) {
-            isSet = set;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public void setValue(int value) {
-            this.value = value;
-        }
-
-
-    }
+		return result;
+	}
+	private int evaluateExpression(int number1, int number2, char operation){
+		//calculate
+		int result = 0;
+		switch(operation){
+			case '+':
+				result = number1 + number2;
+				break;
+			case '-':
+				result = number1 - number2;
+				break;
+			case '*':
+				result = number1 * number2;
+				break;
+			default:
+				throw new UnsupportedOperationException("Operation not supported");
+		}
+		return result;
+	}
 }

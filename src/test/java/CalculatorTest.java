@@ -41,6 +41,13 @@ public class CalculatorTest {
         int result = calculator.calculate("2 * 4 + 7");
         Assert.assertEquals(15, result);
     }
+    
+    @Test
+    public void evaluateExpressionWithFourNumbers(){
+        Calculator calculator = new Calculator();
+        int result = calculator.calculate("2 * 403 + 7 * 45");
+        Assert.assertEquals(1121, result);
+    }
 
     @Test
     public void evaluateExpressionWithParenthesis(){
@@ -54,6 +61,18 @@ public class CalculatorTest {
         Calculator calculator = new Calculator();
         int result = calculator.calculate("3 * ( 2 + 5 * 2)");
         Assert.assertEquals(36, result);
+    }
+    
+    @Test
+    public void evaluateExpressionWithParenthesis3(){
+        Calculator calculator = new Calculator();
+        int result = calculator.calculate("3 * ( (2 + 5) * 2)");
+        Assert.assertEquals(42, result);
+    }
+    
+    @Test
+    public void evaluateInvalidExpression(){
+        
     }
 
 }
