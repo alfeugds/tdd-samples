@@ -14,9 +14,11 @@ public class DiscountCalculator {
 
     public static double applyDiscount(List<Book> items) {
     	double sumOfPrices = 0;
+    	int numOfDifferentBooks = 0;
+    	double discountPercentage = 1;
     	for(Book item : items){
-    		sumOfPrices += item.getPrice();
+    		sumOfPrices += item.getPrice() * item.getQuantity();    		
     	}
-        return sumOfPrices * DISCOUNT_FOR_TWO_DIFFERENT_BOOKS;
+        return sumOfPrices * discountPercentage;
     }
 }
