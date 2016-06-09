@@ -26,22 +26,41 @@ public class DiscountCalculatorTest {
         Book book1 = new Book(1, bookPrice, 1);
         Book book2 = new Book(2, bookPrice, 1);
         Book book3 = new Book(3, bookPrice, 1);
+        Book book4 = new Book(4, bookPrice, 1);
+        Book book5 = new Book(5, bookPrice, 1);
         Cart cart = new Cart();
         cart.addItem(book1);
         cart.addItem(book2);
-        cart.addItem(book3);
         double valueWithDiscount = DiscountCalculator.applyDiscount(cart.getItems());
+        Assert.assertEquals(bookPrice * 2 * .95,valueWithDiscount);
+        
+        cart.addItem(book3);
+        valueWithDiscount = DiscountCalculator.applyDiscount(cart.getItems());
         Assert.assertEquals(bookPrice * 3 * .9,valueWithDiscount);
+        
+        cart.addItem(book4);
+        valueWithDiscount = DiscountCalculator.applyDiscount(cart.getItems());
+        Assert.assertEquals(bookPrice * 4 * .8,valueWithDiscount);
+        
+        cart.addItem(book5);
+        valueWithDiscount = DiscountCalculator.applyDiscount(cart.getItems());
+        Assert.assertEquals(bookPrice * 5 * .75,valueWithDiscount);
     }
     
     @Test
-    public void calculateDiscountFor2EqualBooks(){
-    	Book book1 = new Book(1, bookPrice, 1);
-        Book book2 = new Book(1, bookPrice, 1);
+    public void calculateDiscountForEqualBooks(){
+    	Book book1 = new Book(1, bookPrice, 2);
         Cart cart = new Cart();
         cart.addItem(book1);
-        cart.addItem(book2);
         double valueWithDiscount = DiscountCalculator.applyDiscount(cart.getItems());
         Assert.assertEquals(bookPrice * 2,valueWithDiscount);
+        
+        book1.setQuantity(3);
+        valueWithDiscount = DiscountCalculator.applyDiscount(cart.getItems());
+        Assert.assertEquals(bookPrice * 3,valueWithDiscount);
+        
+        book1.setQuantity(4);
+        valueWithDiscount = DiscountCalculator.applyDiscount(cart.getItems());
+        Assert.assertEquals(bookPrice * 4,valueWithDiscount);
     }
 }
